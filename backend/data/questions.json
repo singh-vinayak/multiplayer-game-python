@@ -1,0 +1,23 @@
+[
+  {
+    "question_id": "q1",
+    "question_text": "What is the capital of France?",
+    "options": ["Paris", "London", "Berlin", "Madrid"],
+    "correct_option": "Paris",
+    "explanation": "Paris is the capital city of France."
+  },
+  {
+    "question_id": "q2",
+    "question_text": "Which planet is known as the Red Planet?",
+    "options": ["Earth", "Mars", "Jupiter", "Saturn"],
+    "correct_option": "Mars",
+    "explanation": "Mars is often called the 'Red Planet'."
+  },
+  {
+    "question_id": "q3",
+    "question_text": "Which planet is the largest in our Milky Way Galaxy?",
+    "options": ["Earth", "Mars", "Jupiter", "Saturn"],
+    "correct_option": "Jupiter",
+    "explanation": "Jupiter is the largest planet."
+  }
+]

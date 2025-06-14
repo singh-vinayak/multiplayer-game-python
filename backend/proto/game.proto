@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package game;
+
+// Service Definition
+service GameService {
+  // Join a game lobby
+  rpc JoinGame (JoinRequest) returns (JoinResponse);
+
+  // Start the game and stream question cards
+  rpc StartGame (GameRequest) returns (stream QuestionCard);
+
+  // Submit an answer
+  rpc SubmitAnswer (AnswerRequest) returns (AnswerResult);
+
+  // Fetch leaderboard once
+  rpc GetLeaderboard (GameId) returns (Leaderboard);
+
+  // Stream leaderboard updates in real time
+  rpc StreamLeaderboard (GameId) returns (stream LeaderboardUpdate);
+}
+
+option go_package = "gamepb";
+
+message Player {
+  string id = 1;
+  string name = 2;
+}
+
+message JoinRequest {
+  string player_name = 1;
+  string game_id = 2;
+}
+
+message JoinResponse {
+  string player_id = 1;
+  string game_id = 2;
+  string message = 3;
+}
+
+message GameRequest {
+  string game_id = 1;
+  string player_id = 2;
+}
+
+message QuestionCard {
+  string question_id = 1;
+  string question_text = 2;
+  repeated string options = 3;
+  int32 time_limit_seconds = 4;
+}
+
+message AnswerRequest {
+  string game_id = 1;
+  string player_id = 2;
+  string question_id = 3;
+  string selected_option = 4;
+  int64 answer_timestamp = 5; // Optional: For scoring by time
+}
+
+message AnswerResult {
+  bool correct = 1;
+  int32 points_awarded = 2;
+  string explanation = 3;
+}
+
+message GameId {
+  string game_id = 1;
+}
+
+message LeaderboardEntry {
+  string player_id = 1;
+  string player_name = 2;
+  int32 score = 3;
+  int32 rank = 4;
+}
+
+message Leaderboard {
+  repeated LeaderboardEntry entries = 1;
+}
+
+message LeaderboardUpdate {
+  Leaderboard leaderboard = 1;
+}
+
+
