@@ -22,6 +22,10 @@ async def simulate_player(name, game_id=None):
                 print(f"[{name}] Leaderboard Update:")
                 for entry in update.leaderboard.entries:
                     print(f"  {entry.player_name} - Score: {entry.score}")
+                if update.game_over:
+                    print(f"[{name}] Game Over! Final Scores above 👆")
+                    break
+
 
         # Start the game to receive questions
         async def play_game():

@@ -81,6 +81,7 @@ message Leaderboard {
 
 message LeaderboardUpdate {
   Leaderboard leaderboard = 1;
+  bool game_over = 2;
 }
 
 
