@@ -1,73 +1,57 @@
 import asyncio
 import grpc
-import random
-
 from generated import game_pb2, game_pb2_grpc
 
+SERVER_ADDRESS = "localhost:50055"  # adjust if your server runs on a different port
 
 async def run():
-    # Connect to the gRPC server
-    async with grpc.aio.insecure_channel("localhost:50055") as channel:
+    async with grpc.aio.insecure_channel(SERVER_ADDRESS) as channel:
         stub = game_pb2_grpc.GameServiceStub(channel)
 
-        # Step 1: Join Game
-        join_response = await stub.JoinGame(game_pb2.JoinRequest(player_name="Vinayak"))
-        print(f"Joined game: {join_response.game_id} as {join_response.player_id}")
-        
-        game_id = join_response.game_id
+        # 1. Join game
+        print("Joining game...")
+        join_response = await stub.JoinGame(game_pb2.JoinRequest(player_name="Alice"))
         player_id = join_response.player_id
+        game_id = join_response.game_id
+        print(f"Joined game: {game_id} as player: {player_id}")
 
-        # Step 2: Start Game & receive questions
-        print("\nStarting game & receiving questions...\n")
-        question_stream = stub.StartGame(game_pb2.GameRequest(game_id=game_id, player_id=player_id))
+        # 2. Get first question
+        print("Getting first question...")
+        question_response = await stub.GetNextQuestion(
+            game_pb2.GameRequest(game_id=game_id, player_id=player_id)
+        )
 
-        question = await question_stream.read()
-        if question:
-            print(f"Question: {question.question_text}")
-            for idx, opt in enumerate(question.options):
-                print(f"{idx+1}. {opt}")
-            
-            selected_option = random.choice(question.options)
-            print(f"\nSelected Option: {selected_option}")
+        if not question_response.question_id:
+            print("No question received (possibly waiting for more players)")
+        else:
+            print(f"Question: {question_response.question_text}")
+            print("Options:")
+            for idx, option in enumerate(question_response.options):
+                print(f"{idx + 1}. {option}")
 
-            # Step 3: Submit Answer
+            # Simulate choosing the first option
+            selected_option = question_response.options[0]
+            print(f"\nSubmitting answer: {selected_option}")
+
+            # 3. Submit answer
             answer_result = await stub.SubmitAnswer(
                 game_pb2.AnswerRequest(
-                    game_id=game_id,
                     player_id=player_id,
-                    question_id=question.question_id,
-                    selected_option=selected_option,
-                    answer_timestamp=int(asyncio.get_event_loop().time())
+                    game_id=game_id,
+                    question_id=question_response.question_id,
+                    selected_option=selected_option
                 )
             )
-
-            print(f"\nAnswer Submitted: {'Correct' if answer_result.correct else 'Incorrect'}")
-            print(f"Points Awarded: {answer_result.points_awarded}")
+            print(f"Answer submitted. Correct: {answer_result.correct}, Points: {answer_result.points_awarded}")
             print(f"Explanation: {answer_result.explanation}")
 
-        else:
-            print("No question received.")
-
-        # Step 4: Fetch Leaderboard Once
-        leaderboard = await stub.GetLeaderboard(game_pb2.GameId(game_id=game_id))
+        # 4. Get leaderboard
+        leaderboard = await stub.GetLeaderboard(
+            game_pb2.GameRequest(player_id=player_id, game_id=game_id)
+        )
         print("\nLeaderboard:")
         for entry in leaderboard.entries:
-            print(f"{entry.rank}. {entry.player_name} - {entry.score} points")
-
-        # Step 5: Stream Live Leaderboard Updates (for 5 seconds)
-        print("\nStreaming leaderboard updates for 5 seconds...")
-        leaderboard_stream = stub.StreamLeaderboard(game_pb2.GameId(game_id=game_id))
-
-        try:
-            async for update in leaderboard_stream:
-                print("📊 Live Leaderboard Update:")
-                for entry in update.leaderboard.entries:
-                    print(f"{entry.rank}. {entry.player_name} - {entry.score}")
-                await asyncio.sleep(5)
-                break  # Stop after first update for testing
-        except Exception as e:
-            print(f"Leaderboard stream error: {e}")
-
+            print(f"{entry.rank}. {entry.player_name} - {entry.score} pts")
 
 if __name__ == "__main__":
     asyncio.run(run())

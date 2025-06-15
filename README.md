@@ -137,3 +137,6 @@ docker run --rm -it -p 8080:8080 \
 2.  Open **two** separate browser tabs or windows and navigate to `http://localhost:3000`.
 3.  Enter a different name in each tab and click "Join".
 4.  Once both players have joined, the game will start automatically. Enjoy!
+
+#### grpcwebproxy command
+grpcwebproxy --backend_addr=localhost:50055 --backend_tls=false --run_tls_server=false --server_http_debug_port=8080 --allowed_origins=http://localhost:3000

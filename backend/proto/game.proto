@@ -7,8 +7,8 @@ service GameService {
   // Join a game lobby
   rpc JoinGame (JoinRequest) returns (JoinResponse);
 
-  // Start the game and stream question cards
-  rpc StartGame (GameRequest) returns (stream QuestionCard);
+  // Start the game and get the next question
+  rpc GetNextQuestion(GameRequest) returns (QuestionCard);
 
   // Submit an answer
   rpc SubmitAnswer (AnswerRequest) returns (AnswerResult);

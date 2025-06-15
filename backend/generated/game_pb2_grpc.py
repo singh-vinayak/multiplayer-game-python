@@ -40,8 +40,8 @@ class GameServiceStub(object):
                 request_serializer=game__pb2.JoinRequest.SerializeToString,
                 response_deserializer=game__pb2.JoinResponse.FromString,
                 _registered_method=True)
-        self.StartGame = channel.unary_stream(
-                '/game.GameService/StartGame',
+        self.GetNextQuestion = channel.unary_unary(
+                '/game.GameService/GetNextQuestion',
                 request_serializer=game__pb2.GameRequest.SerializeToString,
                 response_deserializer=game__pb2.QuestionCard.FromString,
                 _registered_method=True)
@@ -73,8 +73,8 @@ class GameServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def StartGame(self, request, context):
-        """Start the game and stream question cards
+    def GetNextQuestion(self, request, context):
+        """Start the game and get the next question
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -109,8 +109,8 @@ def add_GameServiceServicer_to_server(servicer, server):
                     request_deserializer=game__pb2.JoinRequest.FromString,
                     response_serializer=game__pb2.JoinResponse.SerializeToString,
             ),
-            'StartGame': grpc.unary_stream_rpc_method_handler(
-                    servicer.StartGame,
+            'GetNextQuestion': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetNextQuestion,
                     request_deserializer=game__pb2.GameRequest.FromString,
                     response_serializer=game__pb2.QuestionCard.SerializeToString,
             ),
@@ -169,7 +169,7 @@ class GameService(object):
             _registered_method=True)
 
     @staticmethod
-    def StartGame(request,
+    def GetNextQuestion(request,
             target,
             options=(),
             channel_credentials=None,
@@ -179,10 +179,10 @@ class GameService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(
+        return grpc.experimental.unary_unary(
             request,
             target,
-            '/game.GameService/StartGame',
+            '/game.GameService/GetNextQuestion',
             game__pb2.GameRequest.SerializeToString,
             game__pb2.QuestionCard.FromString,
             options,
