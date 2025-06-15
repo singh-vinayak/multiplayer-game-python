@@ -1,6 +1,7 @@
 import React from "react";
 import { useGame } from "../context/GameContext";
 import { useNavigate } from "react-router-dom";
+import { Container, Typography, Button, Card } from '@mui/material';
 
 const Lobby = () => {
   const { playerId, playerName, gameId } = useGame();
@@ -11,12 +12,24 @@ const Lobby = () => {
   };
 
   return (
-    <div>
-      <h2>Lobby</h2>
-      <p>Welcome, {playerName}</p>
-      <p>Game ID: {gameId}</p>
-      <button onClick={handleStart}>Start Game</button>
-    </div>
+    <Container maxWidth="sm" sx={{ mt: 8 }}>
+      <Card sx={{ p: 4, textAlign: 'center' }}>
+        <Typography variant="h5" gutterBottom>
+          Welcome to the Lobby, {playerName}!
+        </Typography>
+        <Typography variant="body1" gutterBottom>
+          Game ID: {gameId}
+        </Typography>
+        <Button
+          variant="contained"
+          color="success"
+          onClick={handleStart}
+          sx={{ mt: 2 }}
+        >
+          Start Game
+        </Button>
+      </Card>
+    </Container>
   );
 };
 

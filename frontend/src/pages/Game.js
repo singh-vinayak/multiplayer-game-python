@@ -6,6 +6,10 @@ import {
 } from '../grpc/game_pb';
 import { useGame } from '../context/GameContext';
 import { useNavigate } from 'react-router-dom';
+import {
+  Container, Card, Typography, RadioGroup, FormControlLabel,
+  Radio, Button, Box
+} from '@mui/material';
 
 const client = new GameServiceClient('http://localhost:8080', null, null);
 
@@ -87,33 +91,45 @@ function Game() {
   if (!question) return <h2>Waiting for next question...</h2>;
 
   return (
-    <div>
-      <h2>{question.text}</h2>
-      {question.options.map((opt, index) => (
-        <div key={index}>
-          <label>
-            <input
-              type="radio"
-              name="option"
-              value={opt}
-              checked={selectedOption === opt}
-              onChange={() => setSelectedOption(opt)}
-              disabled={!!result}
-            />
-            {opt}
-          </label>
-        </div>
-      ))}
-      <button onClick={submitAnswer} disabled={loading || !!result}>Submit</button>
+    <Container maxWidth="sm" sx={{ mt: 6 }}>
+      {question ? (
+        <Card sx={{ p: 4 }}>
+          <Typography variant="h5" gutterBottom>
+            {question.text}
+          </Typography>
+          <RadioGroup value={selectedOption} onChange={(e) => setSelectedOption(e.target.value)}>
+            {question.options.map((option, i) => (
+              <FormControlLabel key={i} value={option} control={<Radio />} label={option} />
+            ))}
+          </RadioGroup>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={submitAnswer}
+            disabled={!selectedOption}
+            sx={{ mt: 2 }}
+          >
+            Submit Answer
+          </Button>
 
-      {result && (
-        <div>
-          <p>{result.correct ? '✅ Correct!' : '❌ Wrong'}</p>
-          <p>Explanation: {result.explanation}</p>
-          <p>+{result.points} points</p>
-        </div>
+          {result && (
+            <Box mt={3}>
+              <Typography variant="body1" color={result.correct ? 'green' : 'red'}>
+                {result.correct ? 'Correct!' : 'Incorrect.'}
+              </Typography>
+              <Typography variant="body2">{result.explanation}</Typography>
+            </Box>
+          )}
+        </Card>
+      ) : (
+        <Card sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="h6">Waiting for next question or game over...</Typography>
+          <Button sx={{ mt: 2 }} variant="outlined" onClick={() => window.location.href = '/leaderboard'}>
+            View Leaderboard
+          </Button>
+        </Card>
       )}
-    </div>
+    </Container>
   );
 }
 
